@@ -956,6 +956,16 @@
             to { opacity: 0; transform: translateY(-10px); }
         }
         
+        @keyframes disappear {
+            from { opacity: 1; transform: translateX(30%) translateY(-80%) scale(0.7); }
+            to { opacity: 0; transform: translateX(30%) translateY(-80%) scale(0.7); }
+        }
+        
+        @keyframes growFlowers {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.5); }
+        }
+        
         /* Posicionamiento de mensajes usando porcentajes */
         .message-1 {
             top: 30%;
@@ -1147,7 +1157,7 @@
                     
                     // Desaparecer después de 2 segundos
                     setTimeout(() => {
-                        message2.style.animation = 'fadeOut 1.5s forwards';
+                        message2.style.animation = 'fadeOut 2s forwards';
                     }, 2000);
                 }, 4000);
                 
@@ -1163,7 +1173,7 @@
                 
                 // Después de completar el camino, subir hacia el video
                 setTimeout(() => {
-                    // Cambiar to animación de subida
+                    // Cambiar a animación de subida
                     snoopy.style.animation = 'riseUp 3s forwards';
                     flowers.style.animation = 'flowersRiseUp 3s forwards';
                     
@@ -1171,6 +1181,12 @@
                     setTimeout(() => {
                         flowers.style.opacity = '0';
                         flowersCenter.style.opacity = '1';
+                        
+                        // Hacer que las flores en el centro crezcan
+                        flowersCenter.style.animation = 'growFlowers 2s forwards';
+                        
+                        // Hacer que Snoopy desaparezca
+                        snoopy.style.animation = 'disappear 1s forwards';
                         
                         // Marcar que la animación ha terminado
                         setTimeout(() => {
@@ -1185,8 +1201,10 @@
                 // Detener animaciones
                 snoopy.style.animation = 'none';
                 flowers.style.animation = 'none';
+                flowersCenter.style.animation = 'none';
                 
-                // Restaurar opacidad de las flores
+                // Restaurar opacidad de los elementos
+                snoopy.style.opacity = '1';
                 flowers.style.opacity = '1';
                 flowersCenter.style.opacity = '0';
                 
@@ -1201,6 +1219,7 @@
                 // Forzar reflow para reiniciar la animación
                 void snoopy.offsetWidth;
                 void flowers.offsetWidth;
+                void flowersCenter.offsetWidth;
             }
             
             // Iniciar automáticamente al cargar la página
