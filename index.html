@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snoopy Entrega Flores</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #6dd5ed, #2193b0);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            color: #2c3e50;
+        }
+        
+        /* Header elegante */
+        .header {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            flex-direction: column;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover no-repeat;
+            opacity: 0.4;
+            z-index: -1;
+        }
+        
+        .video-container {
+            width: 90%;
+            height: 80%;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+        
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ecf0f1;
+            font-size: 20px;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* Estilos para el video local */
+        .local-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Botón de reproducción personalizado */
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 20;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .play-button:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        
+        .play-button::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-left: 25px solid #2193b0;
+            border-bottom: 15px solid transparent;
+            margin-left: 5px;
+        }
+        
+        /* Animación de carga */
+        .loader {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 26, 46, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            transition: opacity 0.5s;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top: 5px solid #fff;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        .loader-text {
+            color: white;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Texto debajo del video */
+        .video-message {
+            text-align: center;
+            margin-top: auto;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px 20px;
+            border-radius: 30px;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Contenido principal */
+        .content {
+            flex: 1;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        .title {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #fff;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            color: #e0f7fa;
+            max-width: 600px;
+        }
+        
+        /* Escenario de animación */
+        .animation-scene {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 400px;
+            background: linear-gradient(to bottom, #83a4d4, #b6fbff);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            margin-bottom: 40px;
+            border: 5px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Elementos de fondo */
+        .mountain {
+            position: absolute;
+            bottom: 80px;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(to bottom, #8e9eab, #eef2f3);
+            clip-path: polygon(0% 100%, 100% 100%, 100% 20%, 80% 40%, 60% 20%, 40% 50%, 20% 30%, 0% 60%);
+            opacity: 0.8;
+        }
+        
+        .grass {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(to bottom, #2e8b57, #3cb371);
+        }
+        
+        .sun {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, #FFD700, #FF8C00);
+            border-radius: 50%;
+            box-shadow: 0 0 50px #FFA500, 0 0 80px rgba(255, 165, 0, 0.5);
+            animation: sunGlow 4s infinite alternate;
+        }
+        
+        @keyframes sunGlow {
+            0% { box-shadow: 0 0 50px #FFA500, 0 0 80px rgba(255, 165, 0, 0.5); }
+            100% { box-shadow: 0 0 70px #FFA500, 0 0 100px rgba(255, 165, 0, 0.8); }
+        }
+        
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            animation: floatCloud 20s infinite linear;
+        }
+        
+        .cloud:nth-child(1) {
+            top: 60px;
+            left: 100px;
+            width: 70px;
+            height: 40px;
+            animation-duration: 25s;
+        }
+        
+        .cloud:nth-child(2) {
+            top: 100px;
+            left: 200px;
+            width: 90px;
+            height: 50px;
+            animation-duration: 20s;
+        }
+        
+        .cloud:nth-child(3) {
+            top: 50px;
+            right: 200px;
+            width: 80px;
+            height: 45px;
+            animation-duration: 30s;
+        }
+        
+        @keyframes floatCloud {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(30px); }
+            100% { transform: translateX(0); }
+        }
+        
+        /* Camino */
+        .path {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 100%;
+            height: 25px;
+            background: linear-gradient(to right, #8B4513, #A52A2A);
+            border-top: 6px solid #D2691E;
+        }
+        
+        .path::after {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: #8B4513;
+            border-top: 3px dashed #FFD700;
+        }
+        
+        /* Snoopy */
+        .snoopy-container {
+            position: absolute;
+            left: 5%;
+            bottom: 70px;
+            z-index: 20;
+            transition: transform 0.3s;
+            width: 120px;
+            filter: drop-shadow(5px 5px 8px rgba(0, 0, 0, 0.4));
+        }
+        
+        .snoopy-img {
+            width: 100%;
+            transform-origin: bottom center;
+        }
+        
+        /* Flores */
+        .flowers-img {
+            position: absolute;
+            width: 80px;
+            left: 20%;
+            bottom: 75px;
+            z-index: 15;
+            filter: drop-shadow(5px 5px 8px rgba(0, 0, 0, 0.3));
+            transform: rotate(-5deg);
+        }
+        
+        /* Flores en el centro */
+        .flowers-center {
+            position: absolute;
+            width: 100px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 30;
+            filter: drop-shadow(5px 5px 8px rgba(0, 0, 0, 0.3));
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        /* Mensaje de Snoopy */
+        .message {
+            position: absolute;
+            background: linear-gradient(to bottom, #ffffff, #f5f5f5);
+            border-radius: 20px;
+            padding: 15px 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            max-width: 220px;
+            opacity: 0;
+            transition: opacity 0.5s, transform 0.5s;
+            z-index: 25;
+            font-size: 16px;
+            text-align: center;
+            border: 2px solid #ffb6c1;
+            color: #2c3e50;
+            font-weight: 600;
+            transform: translateY(10px);
+        }
+        
+        .message::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 20px;
+            border-width: 15px 15px 0;
+            border-style: solid;
+            border-color: #ffffff transparent transparent;
+        }
+        
+        /* Efectos de confeti */
+        .confetti {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            opacity: 0;
+            z-index: 30;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(0, 0, 0, 0.2);
+            margin-top: auto;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsividad mejorada */
+        @media (max-width: 1200px) {
+            .animation-scene {
+                max-width: 95%;
+            }
+        }
+        
+        @media (max-width: 1000px) {
+            .animation-scene {
+                height: 350px;
+                max-width: 90%;
+            }
+            
+            .header {
+                height: 220px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .message {
+                font-size: 15px;
+                padding: 12px 18px;
+                max-width: 200px;
+            }
+            
+            .video-message {
+                font-size: 16px;
+                padding: 10px 18px;
+            }
+            
+            .play-button {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .play-button::after {
+                border-top: 12px solid transparent;
+                border-left: 20px solid #2193b0;
+                border-bottom: 12px solid transparent;
+            }
+            
+            .snoopy-container {
+                width: 100px;
+                bottom: 65px;
+            }
+            
+            .flowers-img {
+                width: 65px;
+                bottom: 70px;
+                left: 22%;
+            }
+            
+            .flowers-center {
+                width: 80px;
+            }
+            
+            .sun {
+                width: 60px;
+                height: 60px;
+                top: 30px;
+                right: 30px;
+            }
+            
+            .cloud:nth-child(1) {
+                top: 50px;
+                left: 80px;
+                width: 60px;
+                height: 35px;
+            }
+            
+            .cloud:nth-child(2) {
+                top: 80px;
+                left: 160px;
+                width: 70px;
+                height: 40px;
+            }
+            
+            .cloud:nth-child(3) {
+                top: 40px;
+                right: 160px;
+                width: 65px;
+                height: 38px;
+            }
+            
+            .path {
+                height: 20px;
+            }
+            
+            .path::after {
+                top: -12px;
+                height: 4px;
+            }
+            
+            .mountain {
+                bottom: 70px;
+                height: 130px;
+            }
+            
+            .grass {
+                height: 70px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .animation-scene {
+                height: 300px;
+                max-width: 95%;
+            }
+            
+            .header {
+                height: 200px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .snoopy-container {
+                width: 90px;
+                bottom: 60px;
+            }
+            
+            .flowers-img {
+                width: 60px;
+                bottom: 65px;
+                left: 23%;
+            }
+            
+            .flowers-center {
+                width: 70px;
+            }
+            
+            .message {
+                font-size: 14px;
+                padding: 10px 15px;
+                max-width: 180px;
+            }
+            
+            .sun {
+                width: 50px;
+                height: 50px;
+                top: 25px;
+                right: 25px;
+            }
+            
+            .cloud:nth-child(1) {
+                top: 40px;
+                left: 60px;
+                width: 50px;
+                height: 30px;
+            }
+            
+            .cloud:nth-child(2) {
+                top: 70px;
+                left: 120px;
+                width: 60px;
+                height: 35px;
+            }
+            
+            .cloud:nth-child(3) {
+                top: 35px;
+                right: 120px;
+                width: 55px;
+                height: 32px;
+            }
+            
+            .path {
+                height: 18px;
+                bottom: 35px;
+            }
+            
+            .path::after {
+                top: -10px;
+                height: 3px;
+            }
+            
+            .mountain {
+                bottom: 60px;
+                height: 110px;
+            }
+            
+            .grass {
+                height: 60px;
+            }
+            
+            .video-message {
+                font-size: 15px;
+                padding: 8px 16px;
+            }
+            
+            .play-button {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .play-button::after {
+                border-top: 10px solid transparent;
+                border-left: 16px solid #2193b0;
+                border-bottom: 10px solid transparent;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .animation-scene {
+                height: 250px;
+            }
+            
+            .header {
+                height: 180px;
+            }
+            
+            .video-container {
+                width: 95%;
+                height: 75%;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            .title {
+                margin-bottom: 30px;
+            }
+            
+            .snoopy-container {
+                width: 70px;
+                bottom: 50px;
+            }
+            
+            .flowers-img {
+                width: 50px;
+                bottom: 55px;
+                left: 25%;
+            }
+            
+            .flowers-center {
+                width: 60px;
+            }
+            
+            .message {
+                font-size: 12px;
+                padding: 8px 12px;
+                max-width: 150px;
+                border-radius: 15px;
+            }
+            
+            .message::after {
+                bottom: -12px;
+                left: 15px;
+                border-width: 12px 12px 0;
+            }
+            
+            .sun {
+                width: 40px;
+                height: 40px;
+                top: 20px;
+                right: 20px;
+            }
+            
+            .cloud:nth-child(1) {
+                top: 30px;
+                left: 40px;
+                width: 40px;
+                height: 25px;
+            }
+            
+            .cloud:nth-child(2) {
+                top: 50px;
+                left: 90px;
+                width: 50px;
+                height: 30px;
+            }
+            
+            .cloud:nth-child(3) {
+                top: 25px;
+                right: 90px;
+                width: 45px;
+                height: 28px;
+            }
+            
+            .path {
+                height: 15px;
+                bottom: 30px;
+            }
+            
+            .path::after {
+                top: -8px;
+                height: 2px;
+                border-top: 2px dashed #FFD700;
+            }
+            
+            .mountain {
+                bottom: 50px;
+                height: 90px;
+            }
+            
+            .grass {
+                height: 50px;
+            }
+            
+            .video-message {
+                font-size: 14px;
+                padding: 6px 12px;
+            }
+            
+            .play-button {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .play-button::after {
+                border-top: 8px solid transparent;
+                border-left: 12px solid #2193b0;
+                border-bottom: 8px solid transparent;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .animation-scene {
+                height: 220px;
+            }
+            
+            .header {
+                height: 160px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .subtitle {
+                font-size: 0.85rem;
+            }
+            
+            .snoopy-container {
+                width: 60px;
+                bottom: 45px;
+            }
+            
+            .flowers-img {
+                width: 45px;
+                bottom: 50px;
+                left: 26%;
+            }
+            
+            .flowers-center {
+                width: 50px;
+            }
+            
+            .message {
+                font-size: 11px;
+                padding: 6px 10px;
+                max-width: 130px;
+            }
+            
+            .sun {
+                width: 35px;
+                height: 35px;
+                top: 15px;
+                right: 15px;
+            }
+            
+            .cloud:nth-child(1) {
+                top: 25px;
+                left: 30px;
+                width: 35px;
+                height: 20px;
+            }
+            
+            .cloud:nth-child(2) {
+                top: 45px;
+                left: 70px;
+                width: 40px;
+                height: 25px;
+            }
+            
+            .cloud:nth-child(3) {
+                top: 20px;
+                right: 70px;
+                width: 38px;
+                height: 22px;
+            }
+            
+            .path {
+                height: 12px;
+                bottom: 25px;
+            }
+            
+            .mountain {
+                bottom: 45px;
+                height: 80px;
+            }
+            
+            .grass {
+                height: 45px;
+            }
+            
+            .video-message {
+                font-size: 12px;
+                padding: 5px 10px;
+            }
+            
+            .play-button {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .play-button::after {
+                border-top: 6px solid transparent;
+                border-left: 10px solid #2193b0;
+                border-bottom: 6px solid transparent;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .animation-scene {
+                height: 200px;
+            }
+            
+            .header {
+                height: 140px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .subtitle {
+                font-size: 0.8rem;
+            }
+            
+            .snoopy-container {
+                width: 50px;
+                bottom: 40px;
+            }
+            
+            .flowers-img {
+                width: 40px;
+                bottom: 45px;
+                left: 27%;
+            }
+            
+            .flowers-center {
+                width: 45px;
+            }
+            
+            .message {
+                font-size: 10px;
+                padding: 5px 8px;
+                max-width: 120px;
+            }
+            
+            .sun {
+                width: 30px;
+                height: 30px;
+                top: 10px;
+                right: 10px;
+            }
+            
+            .cloud:nth-child(1) {
+                top: 20px;
+                left: 20px;
+                width: 30px;
+                height: 18px;
+            }
+            
+            .cloud:nth-child(2) {
+                top: 40px;
+                left: 60px;
+                width: 35px;
+                height: 20px;
+            }
+            
+            .cloud:nth-child(3) {
+                top: 15px;
+                right: 60px;
+                width: 32px;
+                height: 18px;
+            }
+            
+            .path {
+                height: 10px;
+                bottom: 20px;
+            }
+            
+            .mountain {
+                bottom: 40px;
+                height: 70px;
+            }
+            
+            .grass {
+                height: 40px;
+            }
+            
+            .video-message {
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+        }
+        
+        /* Animaciones */
+        @keyframes moveSnoopy {
+            0% { transform: translateX(0) translateY(0); }
+            30% { transform: translateX(30%) translateY(0); }
+            60% { transform: translateX(60%) translateY(0); }
+            80% { transform: translateX(80%) translateY(0); }
+            100% { transform: translateX(80%) translateY(0); }
+        }
+        
+        @keyframes moveFlowers {
+            0% { transform: translateX(0) translateY(0) rotate(-5deg); }
+            30% { transform: translateX(30%) translateY(0) rotate(-7deg); }
+            60% { transform: translateX(60%) translateY(0) rotate(-3deg); }
+            80% { transform: translateX(80%) translateY(0) rotate(-5deg); }
+            100% { transform: translateX(80%) translateY(0) rotate(-5deg); }
+        }
+        
+        @keyframes riseUp {
+            0% { transform: translateX(80%) translateY(0); }
+            100% { transform: translateX(30%) translateY(-80%) scale(0.7); }
+        }
+        
+        @keyframes flowersRiseUp {
+            0% { transform: translateX(80%) translateY(0) rotate(-5deg); }
+            100% { transform: translateX(35%) translateY(-80%) rotate(-5deg) scale(0.7); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+        
+        /* Posicionamiento de mensajes usando porcentajes */
+        .message-1 {
+            top: 30%;
+            left: 25%;
+        }
+        
+        .message-2 {
+            top: 20%;
+            left: 50%;
+        }
+        
+        .message-3 {
+            top: 30%;
+            left: 75%;
+        }
+        
+        /* Mejoras estéticas adicionales */
+        .title {
+            animation: fadeIn 1.5s ease-out;
+        }
+        
+        .animation-scene {
+            animation: fadeIn 2s ease-out;
+        }
+        
+        footer {
+            animation: fadeIn 2.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header elegante -->
+    <header class="header">
+        <div class="video-container">
+            <div class="loader" id="loader">
+                <div class="loader-spinner"></div>
+                <div class="loader-text">Cargando video...</div>
+            </div>
+            <div class="video-placeholder" id="videoPlaceholder">
+                <!-- El video se insertará aquí -->
+            </div>
+        </div>
+        <div class="video-message">La recuerdas? 😞💖</div>
+    </header>
+    
+    <!-- Contenido principal -->
+    <main class="content">
+        <div class="title">
+            <h1>Flores Amarillas</h1>
+            <p class="subtitle">Snoopy te hace entrega de las flores amarillas</p>
+        </div>
+        
+        <!-- Escenario de animación -->
+        <div class="animation-scene">
+            <!-- Elementos de fondo -->
+            <div class="mountain"></div>
+            <div class="grass"></div>
+            <div class="sun"></div>
+            <div class="cloud"></div>
+            <div class="cloud"></div>
+            <div class="cloud"></div>
+            
+            <!-- Camino -->
+            <div class="path"></div>
+            
+            <!-- Snoopy -->
+            <div class="snoopy-container" id="snoopy">
+                <img src="https://i.pinimg.com/originals/73/63/f3/7363f37b8e148b1caf3bf08b8c56ae5d.png" alt="Snoopy" class="snoopy-img">
+            </div>
+            
+            <!-- Flores -->
+            <img src="https://floresmay.cl/wp-content/uploads/2024/02/lf934-1-8dbbb53c2e32ba8-c3779084-removebg-preview.png" alt="Ramo de flores" class="flowers-img" id="flowers">
+            
+            <!-- Flores en el centro (ocultas inicialmente) -->
+            <img src="https://floresmay.cl/wp-content/uploads/2024/02/lf934-1-8dbbb53c2e32ba8-c3779084-removebg-preview.png" alt="Ramo de flores" class="flowers-center" id="flowersCenter">
+            
+            <!-- Mensajes -->
+            <div class="message message-1" id="message1">¡Hola!</div>
+            <div class="message message-2" id="message2">Te regalo estas flores amarillas por parte de adrian ya que el no pudo en persona</div>
+            <div class="message message-3" id="message3">¡Espero te guste!</div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Diseñado con ❤️ de parte de Adrián - Un mensaje muy especial para ti</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const snoopy = document.getElementById('snoopy');
+            const flowers = document.getElementById('flowers');
+            const flowersCenter = document.getElementById('flowersCenter');
+            const message1 = document.getElementById('message1');
+            const message2 = document.getElementById('message2');
+            const message3 = document.getElementById('message3');
+            const videoPlaceholder = document.getElementById('videoPlaceholder');
+            const loader = document.getElementById('loader');
+            
+            // RUTA DEL VIDEO LOCAL - MODIFICA ESTA LÍNEA CON LA RUTA DE TU VIDEO
+            const videoPath = './MILO J - M.A.I (Video Oficial) - MILO J (720p, h264).mp4';
+            
+            // Variable para controlar si la animación está en curso
+            let isAnimating = false;
+            let videoElement = null;
+            
+            // Cargar el video inmediatamente
+            loadVideo();
+            
+            // Función para cargar el video
+            function loadVideo() {
+                // Mostrar loader
+                loader.style.display = 'flex';
+                
+                // Crear elemento de video
+                videoElement = document.createElement('video');
+                videoElement.className = 'local-video';
+                // Quitamos autoplay y muted para que inicie pausado y con volumen
+                videoElement.controls = true;
+                videoElement.loop = true;
+                
+                // Cuando el video se carga
+                videoElement.addEventListener('loadeddata', function() {
+                    // Ocultar loader después de un breve retraso (500ms en lugar de 1000ms)
+                    setTimeout(() => {
+                        loader.style.opacity = '0';
+                        setTimeout(() => {
+                            loader.style.display = 'none';
+                            
+                            // Crear y mostrar botón de reproducción
+                            createPlayButton();
+                        }, 500);
+                    }, 500); // Reducido de 1000ms a 500ms
+                });
+                
+                // Manejar errores de video
+                videoElement.addEventListener('error', function() {
+                    loader.style.display = 'none';
+                    videoPlaceholder.innerHTML = '<p>Error al cargar el video. Verifica la ruta.</p>';
+                });
+                
+                // Añadir fuente de video
+                const source = document.createElement('source');
+                source.src = videoPath;
+                source.type = 'video/mp4';
+                videoElement.appendChild(source);
+                
+                // Limpiar el placeholder y añadir el video
+                videoPlaceholder.innerHTML = '';
+                videoPlaceholder.appendChild(videoElement);
+            }
+            
+            // Función para crear botón de reproducción
+            function createPlayButton() {
+                const playButton = document.createElement('div');
+                playButton.className = 'play-button';
+                playButton.addEventListener('click', function() {
+                    videoElement.play();
+                    playButton.style.display = 'none';
+                });
+                videoPlaceholder.appendChild(playButton);
+            }
+            
+            // Función para reproducir la animación completa
+            function playAnimation() {
+                if (isAnimating) return;
+                isAnimating = true;
+                
+                // Resetear primero
+                resetAnimation();
+                
+                // Animación de Snoopy moviéndose por el camino
+                snoopy.style.animation = 'moveSnoopy 8s forwards';
+                flowers.style.animation = 'moveFlowers 8s forwards';
+                
+                // Mostrar mensajes durante el recorrido con desaparición automática
+                setTimeout(() => {
+                    message1.style.opacity = '1';
+                    message1.style.animation = 'fadeIn 0.5s forwards';
+                    
+                    // Desaparecer después de 2 segundos
+                    setTimeout(() => {
+                        message1.style.animation = 'fadeOut 0.5s forwards';
+                    }, 2000);
+                }, 2000);
+                
+                setTimeout(() => {
+                    message2.style.opacity = '1';
+                    message2.style.animation = 'fadeIn 0.5s forwards';
+                    
+                    // Desaparecer después de 2 segundos
+                    setTimeout(() => {
+                        message2.style.animation = 'fadeOut 1.5s forwards';
+                    }, 2000);
+                }, 4000);
+                
+                setTimeout(() => {
+                    message3.style.opacity = '1';
+                    message3.style.animation = 'fadeIn 0.5s forwards';
+                    
+                    // Desaparecer después de 2 segundos
+                    setTimeout(() => {
+                        message3.style.animation = 'fadeOut 0.5s forwards';
+                    }, 2000);
+                }, 6000);
+                
+                // Después de completar el camino, subir hacia el video
+                setTimeout(() => {
+                    // Cambiar to animación de subida
+                    snoopy.style.animation = 'riseUp 3s forwards';
+                    flowers.style.animation = 'flowersRiseUp 3s forwards';
+                    
+                    // Después de subir, ocultar las flores que lleva Snoopy y mostrar las flores en el centro
+                    setTimeout(() => {
+                        flowers.style.opacity = '0';
+                        flowersCenter.style.opacity = '1';
+                        
+                        // Marcar que la animación ha terminado
+                        setTimeout(() => {
+                            isAnimating = false;
+                        }, 1000);
+                    }, 3000);
+                }, 8000);
+            }
+            
+            // Función para reiniciar la animación
+            function resetAnimation() {
+                // Detener animaciones
+                snoopy.style.animation = 'none';
+                flowers.style.animation = 'none';
+                
+                // Restaurar opacidad de las flores
+                flowers.style.opacity = '1';
+                flowersCenter.style.opacity = '0';
+                
+                // Ocultar mensajes
+                message1.style.opacity = '0';
+                message2.style.opacity = '0';
+                message3.style.opacity = '0';
+                message1.style.animation = 'none';
+                message2.style.animation = 'none';
+                message3.style.animation = 'none';
+                
+                // Forzar reflow para reiniciar la animación
+                void snoopy.offsetWidth;
+                void flowers.offsetWidth;
+            }
+            
+            // Iniciar automáticamente al cargar la página
+            setTimeout(playAnimation, 1000);
+        });
+    </script>
+</body>
+</html>
